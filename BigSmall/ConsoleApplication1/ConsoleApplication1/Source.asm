@@ -23,39 +23,36 @@ main PROC
 	call readint
 	mov ECX, EAX
 	mov Cnt, ECX
-	mov EBX, [list]
-	mov addreass, EBX
-	mov EBX, 0
+	mov ESI, 0
 	input:
 		call readint
-		mov [list + EBX], EAX
-		add EBX, 4
+		mov [list + ESI], EAX
+		add ESI, 4
 		loop input
 	call minP
 	call crlf
 	call maxP
 	
-	;call DumpRegs
 	INVOKE ExitProcess, 0
 main endp
 
 
 maxP PROC
-	mov EBX, 0
+	mov ESI, 0
 	
-	mov EAX, [list + EBX]
+	mov EAX, [list + ESI]
 	mov max, EAX
 	mov ECX, Cnt
 	compare:
 		mov EAX, max
-		cmp [list + EBX], EAX
+		cmp [list + ESI], EAX
 		jg L1
 		jle L2
 		L1:
-			mov EAX, [list + EBX]
+			mov EAX, [list + ESI]
 			mov max, EAX
 		L2:
-			add EBX,4
+			add ESI,4
 		loop compare
 	mov EDX, OFFSET maxout
 	call writeString
@@ -73,21 +70,21 @@ maxP PROC
 maxP endp
 	
 minP PROC
-	mov EBX, 0
+	mov ESI, 0
 	
-	mov EAX, [list + EBX]
+	mov EAX, [list + ESI]
 	mov min, EAX
 	mov ECX, Cnt
 	compare :
 		mov EAX, min
-		cmp[list + EBX], EAX
+		cmp[list + ESI], EAX
 		je L1
 		jge L2
 		L1 :
-			mov EAX, [list + EBX]
+			mov EAX, [list + ESI]
 			mov min, EAX
 		L2 :
-			add EBX, 4
+			add ESI, 4
 		loop compare
 	mov EDX, OFFSET minout
 	call writeString

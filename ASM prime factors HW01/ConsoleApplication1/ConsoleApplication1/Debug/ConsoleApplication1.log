@@ -1,4 +1,4 @@
 ﻿  Assembling asmMain.asm...
 asmMain.asm(6): warning A4011: multiple .MODEL directives found : .MODEL ignored
   Source.cpp
-  ConsoleApplication1.vcxproj -> E:\assembly language\ASM prime factors HW01\ConsoleApplication1\Debug\ConsoleApplication1.exe
+  ConsoleApplication1.vcxproj -> C:\Users\neil1\Desktop\Coding\assembly language\ASM prime factors HW01\ConsoleApplication1\Debug\ConsoleApplication1.exe

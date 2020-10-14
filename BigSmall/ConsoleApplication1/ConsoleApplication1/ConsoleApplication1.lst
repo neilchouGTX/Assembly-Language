@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.27.29112.0	    10/12/20 23:43:04
+Microsoft (R) Macro Assembler Version 14.27.29112.0	    10/14/20 17:00:50
 Source.asm						     Page 1 - 1
 
 
@@ -53,88 +53,85 @@ Source.asm(4) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  0000000A  E8 00000000 E		call readint
  0000000F  8B C8			mov ECX, EAX
  00000011  89 0D 00000023 R		mov Cnt, ECX
- 00000017  8B 1D 0000002F R		mov EBX, [list]
- 0000001D  89 1D 00009C6F R		mov addreass, EBX
- 00000023  BB 00000000			mov EBX, 0
- 00000028				input:
- 00000028  E8 00000000 E			call readint
- 0000002D  89 83 0000002F R			mov [list + EBX], EAX
- 00000033  83 C3 04				add EBX, 4
- 00000036  E2 F0				loop input
- 00000038  E8 00000069			call minP
- 0000003D  E8 00000000 E		call crlf
- 00000042  E8 00000007			call maxP
+ 00000017  BE 00000000			mov ESI, 0
+ 0000001C				input:
+ 0000001C  E8 00000000 E			call readint
+ 00000021  89 86 0000002F R			mov [list + ESI], EAX
+ 00000027  83 C6 04				add ESI, 4
+ 0000002A  E2 F0				loop input
+ 0000002C  E8 00000069			call minP
+ 00000031  E8 00000000 E		call crlf
+ 00000036  E8 00000007			call maxP
 					
-					;call DumpRegs
 					INVOKE ExitProcess, 0
- 0000004E			main endp
+ 00000042			main endp
 
 
- 0000004E			maxP PROC
- 0000004E  BB 00000000			mov EBX, 0
+ 00000042			maxP PROC
+ 00000042  BE 00000000			mov ESI, 0
 					
- 00000053  8B 83 0000002F R		mov EAX, [list + EBX]
- 00000059  A3 0000002B R		mov max, EAX
- 0000005E  8B 0D 00000023 R		mov ECX, Cnt
- 00000064				compare:
- 00000064  A1 0000002B R			mov EAX, max
- 00000069  39 83 0000002F R			cmp [list + EBX], EAX
- 0000006F  7F 02				jg L1
- 00000071  7E 0B				jle L2
- 00000073					L1:
- 00000073  8B 83 0000002F R				mov EAX, [list + EBX]
- 00000079  A3 0000002B R				mov max, EAX
- 0000007E					L2:
- 0000007E  83 C3 04					add EBX,4
- 00000081  E2 E1				loop compare
- 00000083  BA 00000015 R		mov EDX, OFFSET maxout
- 00000088  E8 00000000 E		call writeString
- 0000008D  A1 0000002B R		mov EAX, max
- 00000092  83 F8 00			cmp EAX, 0
- 00000095  7D 02			jge L3
- 00000097  7C 07			jl L4
- 00000099				L3:
- 00000099  E8 00000000 E			call writeDec
- 0000009E  EB 05				jmp L5
- 000000A0				L4:
- 000000A0  E8 00000000 E			call writeInt
- 000000A5				L5:
- 000000A5  C3				ret
- 000000A6			maxP endp
+ 00000047  8B 86 0000002F R		mov EAX, [list + ESI]
+ 0000004D  A3 0000002B R		mov max, EAX
+ 00000052  8B 0D 00000023 R		mov ECX, Cnt
+ 00000058				compare:
+ 00000058  A1 0000002B R			mov EAX, max
+ 0000005D  39 86 0000002F R			cmp [list + ESI], EAX
+ 00000063  7F 02				jg L1
+ 00000065  7E 0B				jle L2
+ 00000067					L1:
+ 00000067  8B 86 0000002F R				mov EAX, [list + ESI]
+ 0000006D  A3 0000002B R				mov max, EAX
+ 00000072					L2:
+ 00000072  83 C6 04					add ESI,4
+ 00000075  E2 E1				loop compare
+ 00000077  BA 00000015 R		mov EDX, OFFSET maxout
+ 0000007C  E8 00000000 E		call writeString
+ 00000081  A1 0000002B R		mov EAX, max
+ 00000086  83 F8 00			cmp EAX, 0
+ 00000089  7D 02			jge L3
+ 0000008B  7C 07			jl L4
+ 0000008D				L3:
+ 0000008D  E8 00000000 E			call writeDec
+ 00000092  EB 05				jmp L5
+ 00000094				L4:
+ 00000094  E8 00000000 E			call writeInt
+ 00000099				L5:
+ 00000099  C3				ret
+ 0000009A			maxP endp
 					
- 000000A6			minP PROC
- 000000A6  BB 00000000			mov EBX, 0
+ 0000009A			minP PROC
+ 0000009A  BE 00000000			mov ESI, 0
 					
- 000000AB  8B 83 0000002F R		mov EAX, [list + EBX]
- 000000B1  A3 00000027 R		mov min, EAX
- 000000B6  8B 0D 00000023 R		mov ECX, Cnt
- 000000BC				compare :
- 000000BC  A1 00000027 R			mov EAX, min
- 000000C1  39 83 0000002F R			cmp[list + EBX], EAX
- 000000C7  74 02				je L1
- 000000C9  7D 0B				jge L2
- 000000CB					L1 :
- 000000CB  8B 83 0000002F R				mov EAX, [list + EBX]
- 000000D1  A3 00000027 R				mov min, EAX
- 000000D6					L2 :
- 000000D6  83 C3 04					add EBX, 4
- 000000D9  E2 E1				loop compare
- 000000DB  BA 0000001C R		mov EDX, OFFSET minout
- 000000E0  E8 00000000 E		call writeString
- 000000E5  A1 00000027 R		mov EAX, min
- 000000EA  83 F8 00			cmp EAX, 0
- 000000ED  7D 02			jge L3
- 000000EF  7C 07			jl L4
- 000000F1				L3:
- 000000F1  E8 00000000 E			call writeDec
- 000000F6  EB 05				jmp L5
- 000000F8				L4 :
- 000000F8  E8 00000000 E			call writeInt
- 000000FD				L5:
- 000000FD  C3				ret
- 000000FE			minP endp
+ 0000009F  8B 86 0000002F R		mov EAX, [list + ESI]
+ 000000A5  A3 00000027 R		mov min, EAX
+ 000000AA  8B 0D 00000023 R		mov ECX, Cnt
+ 000000B0				compare :
+ 000000B0  A1 00000027 R			mov EAX, min
+ 000000B5  39 86 0000002F R			cmp[list + ESI], EAX
+ 000000BB  74 02				je L1
+ 000000BD  7D 0B				jge L2
+ 000000BF					L1 :
+ 000000BF  8B 86 0000002F R				mov EAX, [list + ESI]
+ 000000C5  A3 00000027 R				mov min, EAX
+ 000000CA					L2 :
+ 000000CA  83 C6 04					add ESI, 4
+ 000000CD  E2 E1				loop compare
+ 000000CF  BA 0000001C R		mov EDX, OFFSET minout
+ 000000D4  E8 00000000 E		call writeString
+ 000000D9  A1 00000027 R		mov EAX, min
+ 000000DE  83 F8 00			cmp EAX, 0
+ 000000E1  7D 02			jge L3
+ 000000E3  7C 07			jl L4
+ 000000E5				L3:
+ 000000E5  E8 00000000 E			call writeDec
+ 000000EA  EB 05				jmp L5
+ 000000EC				L4 :
+ 000000EC  E8 00000000 E			call writeInt
+ 000000F1				L5:
+ 000000F1  C3				ret
+ 000000F2			minP endp
 				END main
-Microsoft (R) Macro Assembler Version 14.27.29112.0	    10/12/20 23:43:04
+Microsoft (R) Macro Assembler Version 14.27.29112.0	    10/14/20 17:00:50
 Source.asm						     Symbols 2 - 1
 
 
@@ -229,7 +226,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00009C73 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000000FE Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000000F2 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -336,22 +333,22 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000004E Public STDCALL
-  input  . . . . . . . . . . . .	L Near	 00000028 _TEXT	
-maxP . . . . . . . . . . . . . .	P Near	 0000004E _TEXT	Length= 00000058 Public STDCALL
-  compare  . . . . . . . . . . .	L Near	 00000064 _TEXT	
-  L1 . . . . . . . . . . . . . .	L Near	 00000073 _TEXT	
-  L2 . . . . . . . . . . . . . .	L Near	 0000007E _TEXT	
-  L3 . . . . . . . . . . . . . .	L Near	 00000099 _TEXT	
-  L4 . . . . . . . . . . . . . .	L Near	 000000A0 _TEXT	
-  L5 . . . . . . . . . . . . . .	L Near	 000000A5 _TEXT	
-minP . . . . . . . . . . . . . .	P Near	 000000A6 _TEXT	Length= 00000058 Public STDCALL
-  compare  . . . . . . . . . . .	L Near	 000000BC _TEXT	
-  L1 . . . . . . . . . . . . . .	L Near	 000000CB _TEXT	
-  L2 . . . . . . . . . . . . . .	L Near	 000000D6 _TEXT	
-  L3 . . . . . . . . . . . . . .	L Near	 000000F1 _TEXT	
-  L4 . . . . . . . . . . . . . .	L Near	 000000F8 _TEXT	
-  L5 . . . . . . . . . . . . . .	L Near	 000000FD _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000042 Public STDCALL
+  input  . . . . . . . . . . . .	L Near	 0000001C _TEXT	
+maxP . . . . . . . . . . . . . .	P Near	 00000042 _TEXT	Length= 00000058 Public STDCALL
+  compare  . . . . . . . . . . .	L Near	 00000058 _TEXT	
+  L1 . . . . . . . . . . . . . .	L Near	 00000067 _TEXT	
+  L2 . . . . . . . . . . . . . .	L Near	 00000072 _TEXT	
+  L3 . . . . . . . . . . . . . .	L Near	 0000008D _TEXT	
+  L4 . . . . . . . . . . . . . .	L Near	 00000094 _TEXT	
+  L5 . . . . . . . . . . . . . .	L Near	 00000099 _TEXT	
+minP . . . . . . . . . . . . . .	P Near	 0000009A _TEXT	Length= 00000058 Public STDCALL
+  compare  . . . . . . . . . . .	L Near	 000000B0 _TEXT	
+  L1 . . . . . . . . . . . . . .	L Near	 000000BF _TEXT	
+  L2 . . . . . . . . . . . . . .	L Near	 000000CA _TEXT	
+  L3 . . . . . . . . . . . . . .	L Near	 000000E5 _TEXT	
+  L4 . . . . . . . . . . . . . .	L Near	 000000EC _TEXT	
+  L5 . . . . . . . . . . . . . .	L Near	 000000F1 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
