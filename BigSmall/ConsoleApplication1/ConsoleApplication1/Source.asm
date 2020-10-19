@@ -29,10 +29,11 @@ main PROC
 		mov [list + ESI], EAX
 		add ESI, 4
 		loop input
+	call crlf
 	call minP
 	call crlf
 	call maxP
-	
+	call crlf
 	INVOKE ExitProcess, 0
 main endp
 
@@ -78,7 +79,7 @@ minP PROC
 	compare :
 		mov EAX, min
 		cmp[list + ESI], EAX
-		je L1
+		jl L1
 		jge L2
 		L1 :
 			mov EAX, [list + ESI]
