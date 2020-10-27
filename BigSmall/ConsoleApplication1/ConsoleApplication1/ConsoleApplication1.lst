@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.27.29112.0	    10/19/20 22:02:55
+Microsoft (R) Macro Assembler Version 14.27.29112.0	    10/19/20 23:36:58
 Source.asm						     Page 1 - 1
 
 
@@ -37,7 +37,7 @@ Source.asm(4) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 	   20 00
  0000001C 4D 69 6E 20 3D	minout BYTE "Min = ",0
 	   20 00
- 00000023 00000000		Cnt DWORD ?
+ 00000023 00000000		Cnt DWORD 0
  00000027 00000000		min SDWORD ?
  0000002B 00000000		max SDWORD ?
  0000002F  00002710 [		list SDWORD 10000 DUP(?)
@@ -132,7 +132,7 @@ Source.asm(4) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  000000FB  C3				ret
  000000FC			minP endp
 				END main
-Microsoft (R) Macro Assembler Version 14.27.29112.0	    10/19/20 22:02:55
+Microsoft (R) Macro Assembler Version 14.27.29112.0	    10/19/20 23:36:58
 Source.asm						     Symbols 2 - 1
 
 

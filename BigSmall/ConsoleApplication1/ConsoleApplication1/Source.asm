@@ -9,7 +9,7 @@ ExitProcess proto, dwExitCode:dword
 output BYTE "Please enter number:",0
 maxout BYTE "Max = ",0
 minout BYTE "Min = ",0
-Cnt DWORD ?
+Cnt DWORD 0
 min SDWORD ?
 max SDWORD ?
 list SDWORD 10000 DUP(?)

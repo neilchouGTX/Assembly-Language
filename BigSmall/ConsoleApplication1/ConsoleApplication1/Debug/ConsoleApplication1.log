@@ -1,3 +1,1 @@
-﻿  Assembling Source.asm...
-Source.asm(4): warning A4011: multiple .MODEL directives found : .MODEL ignored
-  ConsoleApplication1.vcxproj -> C:\Users\neil1\Desktop\Coding\assembly language\BigSmall\ConsoleApplication1\Debug\ConsoleApplication1.exe
+﻿  ConsoleApplication1.vcxproj -> D:\Coding\assembly language\BigSmall\ConsoleApplication1\Debug\ConsoleApplication1.exe
