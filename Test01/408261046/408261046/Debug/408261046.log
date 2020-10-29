@@ -1,0 +1,4 @@
+﻿  Assembling asmMain.asm...
+asmMain.asm(7): warning A4011: multiple .MODEL directives found : .MODEL ignored
+  Source.cpp
+  408261046.vcxproj -> C:\Users\CS2019\Desktop\408261046\Debug\408261046.exe
