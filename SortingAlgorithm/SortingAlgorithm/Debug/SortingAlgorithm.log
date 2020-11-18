@@ -1,3 +1,3 @@
-﻿  Assembling _sort.asm...
-prototype.inc(4): warning A4011: multiple .MODEL directives found : .MODEL ignored
-  SortingAlgorithm.vcxproj -> C:\Users\neil1\Desktop\codeTEMP\SortingAlgorithm\Debug\SortingAlgorithm.exe
+﻿  Assembling Source.asm...
+prototype.inc(7): warning A4011: multiple .MODEL directives found : .MODEL ignored
+  SortingAlgorithm.vcxproj -> C:\Users\CS2019\Desktop\SortingAlgorithm\Debug\SortingAlgorithm.exe

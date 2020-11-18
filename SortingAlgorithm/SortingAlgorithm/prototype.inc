@@ -1,5 +1,8 @@
 INCLUDE Irvine32.inc
 
+includelib ucrt.lib
+includelib legacy_stdio_definitions.lib
+
 .586
 .model flat, stdcall
 .stack 4096

@@ -1,5 +1,5 @@
-Microsoft (R) Macro Assembler Version 14.27.29112.0	    11/18/20 00:03:40
-_sort.asm						     Page 1 - 1
+Microsoft (R) Macro Assembler Version 14.27.29111.0	    11/18/20 13:19:59
+Source.asm						     Page 1 - 1
 
 
 				INCLUDE prototype.inc
@@ -22,9 +22,12 @@ _sort.asm						     Page 1 - 1
 			      C .LIST
 			      C 
 			      C 
+			      C includelib ucrt.lib
+			      C includelib legacy_stdio_definitions.lib
+			      C 
 			      C .586
 			      C .model flat, stdcall
-prototype.inc(4) : warning A4011:multiple .MODEL directives found : .MODEL ignored
+prototype.inc(7) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 			      C .stack 4096
 			      C ExitProcess PROTO, dwExitCode : DWORD
 			      C 
@@ -33,58 +36,115 @@ prototype.inc(4) : warning A4011:multiple .MODEL directives found : .MODEL ignor
 			      C 	arraySize: DWORD
 			      C 
 
-
  00000000			.data
- 00000000 00000001		i DWORD 1
- 00000004 00000001		j SDWORD 1
- 00000008 00000000		key SDWORD ?
+ 00000000  000186A0 [		arr SDWORD 100000 DUP(?)
+	    00000000
+	   ]
+ 00061A80 45 6E 74 65 72	inputline BYTE "Enter an integer:", 0
+	   20 61 6E 20 69
+	   6E 74 65 67 65
+	   72 3A 00
+ 00061A92 20 00			space BYTE " ",0
+ 00061A94 25 64 00		format BYTE "%d",0
 
- 00000000			.code 
- 00000000			sort PROC,
-					ptrArray: PTR SDWORD,
-					arraySize : DWORD
+ 00061A97 00000000		count DWORD ?
 
- 00000003  C7 05 00000000 R		mov i,1
-	   00000001
- 0000000D  C7 05 00000004 R		mov j,1
-	   00000001
- 00000017  8B 4D 0C			mov ecx,arraySize
- 0000001A  49				dec ecx
- 0000001B  8B 75 08			mov esi, ptrArray
- 0000001E  83 C6 04			add esi,4
- 00000021				L1:
- 00000021  8B 06				mov eax, [esi]
- 00000023  A3 00000008 R			mov key, eax
- 00000028  56					push esi
- 00000029  83 EE 04				sub esi,4
- 0000002C  A1 00000000 R			mov eax,i
- 00000031  A3 00000004 R			mov j, eax
- 00000036  FF 0D 00000004 R			dec j
- 0000003C					Testt:
- 0000003C  83 3D 00000004 R				cmp j,0
-	   00
- 00000043  7C 19					jl  exitt
- 00000045  A1 00000008 R				mov eax,key
- 0000004A  39 06					cmp [esi],eax
- 0000004C  7D 10					jge  exitt
- 0000004E  8B 06					mov eax, [esi]
- 00000050  89 46 04					mov [esi+4],eax
- 00000053  83 EE 04					sub esi,4
- 00000056  FF 0D 00000004 R				dec j
- 0000005C  EB DE					jmp Testt
- 0000005E					exitt:
- 0000005E  A1 00000008 R			mov eax,key
- 00000063  89 46 04				mov [esi+4],eax
- 00000066  5E					pop esi
- 00000067  83 C6 04				add esi,4
- 0000006A  FF 05 00000000 R			inc i
- 00000070  E2 AF				loop L1
+ 00000000			.code
+ 00000000			main PROC
+ 00000000				round:
+						INVOKE scanf, ADDR format, ADDR count
+ 00000012  A1 00061A97 R			mov eax,count
+ 00000017  83 F8 00				cmp eax,0
+ 0000001A  74 4D				je quit						;if N = 0 then quit
+ 0000001C  A3 00061A97 R			mov count,eax
+ 00000021  8B 0D 00061A97 R			mov ecx, count				;make input loop "count" times
+ 00000027  BE 00000000 R			mov esi, OFFSET arr
+						
+ 0000002C					input:
+ 0000002C  51						push ECX
+							INVOKE scanf, ADDR format, ADDR [esi]
+ 0000003D  59						pop ecx
+ 0000003E  83 C6 04					add esi,4
+ 00000041  E2 E9					loop input
+						INVOKE sort, ADDR arr, count		;invoke sort and pass  2 parameters
+ 00000053  E8 00000018				call printSort				
+ 00000058  E8 00000000 E			call crlf
+ 0000005D  E8 0000003C				call printMid
+ 00000062  E8 00000000 E			call crlf
+ 00000067  EB 97				jmp round					;infinite loop
+ 00000069				quit:
+					INVOKE ExitProcess, 0 
+ 00000070			main ENDP
 
-					ret
- 00000076			sort endp
-				END
-Microsoft (R) Macro Assembler Version 14.27.29112.0	    11/18/20 00:03:40
-_sort.asm						     Symbols 2 - 1
+ 00000070			printSort PROC
+ 00000070  BE 00000000 R		mov esi, OFFSET arr
+ 00000075  8B 0D 00061A97 R		mov ecx, count				;loop count times to print the element in array
+ 0000007B				L1 :
+ 0000007B  8B 06				mov eax, [esi]
+ 0000007D  83 F8 00				cmp eax,0			;if [esi]>0 then dont need to print '+'
+ 00000080  7C 07				Jl INTT
+ 00000082					DECC:
+ 00000082  E8 00000000 E				call writeDec
+ 00000087  EB 05					jmp Con
+ 00000089					INTT:
+ 00000089  E8 00000000 E				call writeInt
+ 0000008E					Con:
+ 0000008E  BA 00061A92 R			mov edx, offset space
+ 00000093  E8 00000000 E			call writeString
+ 00000098  83 C6 04				add esi, 4				;take next element
+ 0000009B  E2 DE				loop L1
+ 0000009D  C3				ret
+ 0000009E			printSort ENDP
+
+ 0000009E			printMid PROC
+ 0000009E  A1 00061A97 R		mov eax,count
+ 000000A3  BA 00000000			mov edx,0
+ 000000A8  BB 00000002			mov ebx,2
+ 000000AD  F7 F3			div ebx
+ 000000AF  83 FA 00			cmp edx,0			;compare the remainder is 0 or 1
+ 000000B2  77 3A			ja ODD
+ 000000B4				EVENN:
+ 000000B4  B9 00000002				mov ecx,2				;print two times
+ 000000B9  BE 00000000 R			mov esi, OFFSET arr
+ 000000BE  BB 00000004				mov ebx,4				
+ 000000C3  F7 E3				mul ebx					;4 bype
+ 000000C5  03 F0				add esi, eax
+ 000000C7  83 EE 04				sub esi, 4				;the middle left one
+ 000000CA					mid:
+ 000000CA  8B 06					mov eax,[esi]
+ 000000CC  83 F8 00					cmp eax,0
+ 000000CF  7C 07					Jl INTT
+ 000000D1						DECC:
+ 000000D1  E8 00000000 E					call writeDec
+ 000000D6  EB 05						jmp Con
+ 000000D8						INTT:
+ 000000D8  E8 00000000 E					call writeInt
+ 000000DD						Con:
+ 000000DD  BA 00061A92 R				mov edx, offset space
+ 000000E2  E8 00000000 E				call writeString
+ 000000E7  83 C6 04					add esi,4			;take next element(middle right one)
+ 000000EA  E2 DE					loop mid
+ 000000EC  EB 21					jmp oddCon
+ 000000EE				ODD:
+ 000000EE  BE 00000000 R			mov esi, OFFSET arr
+ 000000F3  BB 00000004				mov ebx,4
+ 000000F8  F7 E3				mul ebx
+ 000000FA  03 F0				add esi, eax
+ 000000FC  8B 06				mov eax,[esi]
+ 000000FE  83 F8 00				cmp eax,0
+ 00000101  7C 07				Jl oddINTT
+ 00000103					oddDECC:
+ 00000103  E8 00000000 E				call writeDec
+ 00000108  EB 05					jmp oddCon
+ 0000010A					oddINTT:
+ 0000010A  E8 00000000 E				call writeInt
+ 0000010F				oddCon:
+
+ 0000010F  C3				ret
+ 00000110			printMid ENDP
+				end main
+Microsoft (R) Macro Assembler Version 14.27.29111.0	    11/18/20 13:19:59
+Source.asm						     Symbols 2 - 1
 
 
 
@@ -177,8 +237,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 0000000C Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000076 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00061A9B Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000110 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -285,14 +345,28 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000070 Public STDCALL
+  round  . . . . . . . . . . . .	L Near	 00000000 _TEXT	
+  input  . . . . . . . . . . . .	L Near	 0000002C _TEXT	
+  quit . . . . . . . . . . . . .	L Near	 00000069 _TEXT	
+printMid . . . . . . . . . . . .	P Near	 0000009E _TEXT	Length= 00000072 Public STDCALL
+  EVENN  . . . . . . . . . . . .	L Near	 000000B4 _TEXT	
+  mid  . . . . . . . . . . . . .	L Near	 000000CA _TEXT	
+  DECC . . . . . . . . . . . . .	L Near	 000000D1 _TEXT	
+  INTT . . . . . . . . . . . . .	L Near	 000000D8 _TEXT	
+  Con  . . . . . . . . . . . . .	L Near	 000000DD _TEXT	
+  ODD  . . . . . . . . . . . . .	L Near	 000000EE _TEXT	
+  oddDECC  . . . . . . . . . . .	L Near	 00000103 _TEXT	
+  oddINTT  . . . . . . . . . . .	L Near	 0000010A _TEXT	
+  oddCon . . . . . . . . . . . .	L Near	 0000010F _TEXT	
+printSort  . . . . . . . . . . .	P Near	 00000070 _TEXT	Length= 0000002E Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 0000007B _TEXT	
+  DECC . . . . . . . . . . . . .	L Near	 00000082 _TEXT	
+  INTT . . . . . . . . . . . . .	L Near	 00000089 _TEXT	
+  Con  . . . . . . . . . . . . .	L Near	 0000008E _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-sort . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000076 Public STDCALL
-  ptrArray . . . . . . . . . . .	DWord	 bp + 00000008
-  arraySize  . . . . . . . . . .	DWord	 bp + 0000000C
-  L1 . . . . . . . . . . . . . .	L Near	 00000021 _TEXT	
-  Testt  . . . . . . . . . . . .	L Near	 0000003C _TEXT	
-  exitt  . . . . . . . . . . . .	L Near	 0000005E _TEXT	
+sort . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -509,16 +583,17 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
+arr  . . . . . . . . . . . . . .	DWord	 00000000 _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
+count  . . . . . . . . . . . . .	DWord	 00061A97 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
+format . . . . . . . . . . . . .	Byte	 00061A94 _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-i  . . . . . . . . . . . . . . .	DWord	 00000000 _DATA	
-j  . . . . . . . . . . . . . . .	DWord	 00000004 _DATA	
-key  . . . . . . . . . . . . . .	DWord	 00000008 _DATA	
+inputline  . . . . . . . . . . .	Byte	 00061A80 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
@@ -527,6 +602,7 @@ lightMagenta . . . . . . . . . .	Number	 0000000Dh
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
 red  . . . . . . . . . . . . . .	Number	 00000004h   
+space  . . . . . . . . . . . . .	Byte	 00061A92 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   

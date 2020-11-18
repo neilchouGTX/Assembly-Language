@@ -1,23 +1,28 @@
 INCLUDE prototype.inc
 
 .data
-arr SDWORD 100000 DUP(? )
+arr SDWORD 100000 DUP(?)
 inputline BYTE "Enter an integer:", 0
 space BYTE " ",0
+format BYTE "%d",0
+
 count DWORD ?
 
 .code
 main PROC
 	round:
-		call readInt				;read N
+		INVOKE scanf, ADDR format, ADDR count
+		mov eax,count
 		cmp eax,0
 		je quit						;if N = 0 then quit
 		mov count,eax
 		mov ecx, count				;make input loop "count" times
 		mov esi, OFFSET arr
+		
 		input:
-			call readInt
-			mov [esi],eax
+			push ECX
+			INVOKE scanf, ADDR format, ADDR [esi]
+			pop ecx
 			add esi,4
 			loop input
 		INVOKE sort, ADDR arr, count		;invoke sort and pass  2 parameters
