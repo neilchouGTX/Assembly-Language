@@ -25,8 +25,7 @@ main PROC
 		call PrimeFac		;call PrimeFac to process the number
 		one:
 		call crlf
-		mov ECX, 10			;make loop infinity
-		loop master
+		jmp master
 	finish:
 	INVOKE ExitProcess, 0
 main endp
@@ -44,8 +43,7 @@ PrimeFac PROC
 			jne nofac
 			mov num, EAX
 			inc count
-			mov ECX , 5			;make loop infinity
-			loop TestLB
+			jmp TestLB
 		nofac:
 			cmp count, 0		;if count still 0 means that this divisor is not correct jump to next
 			je next
@@ -55,8 +53,7 @@ PrimeFac PROC
 			mov EAX, num
 			cmp temp, EAX		;if temp > num then jump to fin
 			jae fin
-			mov ECX, 5			;make loop infinity
-		loop anotherTemp
+		jmp anotherTemp
 		fin:
 		ret
 PrimeFac endp
@@ -71,8 +68,7 @@ print PROC
 
 	cmp flag ,0					;check whether printmul need to print 
 	jne nomul
-		call printmul
-	
+		call printmul	
 		nomul:
 			mov EAX,temp
 			call writeDec

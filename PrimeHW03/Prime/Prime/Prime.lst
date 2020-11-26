@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.27.29111.0	    11/03/20 12:23:34
+Microsoft (R) Macro Assembler Version 14.28.29334.0	    11/24/20 22:04:13
 Source.asm						     Page 1 - 1
 
 
@@ -42,82 +42,78 @@ Source.asm(4) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  00000005  A3 00000000 R			mov num, EAX
  0000000A  83 3D 00000000 R			cmp num, 0			;if num < 0 then jump to finish
 	   00
- 00000011  7C 1A				jl finish
+ 00000011  7C 15				jl finish
  00000013  74 0C				je one
  00000015  C6 05 0000000C R			mov flag, 1			;reset flag to 1
 	   01
- 0000001C  E8 00000013				call PrimeFac		;call PrimeFac to process the number
+ 0000001C  E8 0000000E				call PrimeFac		;call PrimeFac to process the number
  00000021					one:
  00000021  E8 00000000 E			call crlf
- 00000026  B9 0000000A				mov ECX, 10			;make loop infinity
- 0000002B  E2 D3				loop master
- 0000002D				finish:
+ 00000026  EB D8				jmp master
+ 00000028				finish:
 					INVOKE ExitProcess, 0
- 00000034			main endp
+ 0000002F			main endp
 				
- 00000034			PrimeFac PROC
- 00000034  C7 05 00000004 R		mov temp, 1				;set the divisor
+ 0000002F			PrimeFac PROC
+ 0000002F  C7 05 00000004 R		mov temp, 1				;set the divisor
 	   00000001
- 0000003E				anotherTemp:
- 0000003E  FF 05 00000004 R			inc temp
- 00000044  C7 05 00000008 R			mov count, 0		;reset the power count
+ 00000039				anotherTemp:
+ 00000039  FF 05 00000004 R			inc temp
+ 0000003F  C7 05 00000008 R			mov count, 0		;reset the power count
 	   00000000
- 0000004E					TestLB:
- 0000004E  A1 00000000 R				mov EAX, num
- 00000053  99						cdq
- 00000054  F7 35 00000004 R				div temp
- 0000005A  83 FA 00					cmp EDX, 0			;if the reminder is 0 than count+1 else jump to nofac
- 0000005D  75 12					jne nofac
- 0000005F  A3 00000000 R				mov num, EAX
- 00000064  FF 05 00000008 R				inc count
- 0000006A  B9 00000005					mov ECX , 5			;make loop infinity
- 0000006F  E2 DD					loop TestLB
- 00000071					nofac:
- 00000071  83 3D 00000008 R				cmp count, 0		;if count still 0 means that this divisor is not correct jump to next
+ 00000049					TestLB:
+ 00000049  A1 00000000 R				mov EAX, num
+ 0000004E  99						cdq
+ 0000004F  F7 35 00000004 R				div temp
+ 00000055  83 FA 00					cmp EDX, 0			;if the reminder is 0 than count+1 else jump to nofac
+ 00000058  75 0D					jne nofac
+ 0000005A  A3 00000000 R				mov num, EAX
+ 0000005F  FF 05 00000008 R				inc count
+ 00000065  EB E2					jmp TestLB
+ 00000067					nofac:
+ 00000067  83 3D 00000008 R				cmp count, 0		;if count still 0 means that this divisor is not correct jump to next
 	   00
- 00000078  74 0C					je next
- 0000007A  E8 00000027					call print
- 0000007F  C6 05 0000000C R				mov flag, 0
+ 0000006E  74 0C					je next
+ 00000070  E8 00000022					call print
+ 00000075  C6 05 0000000C R				mov flag, 0
 	   00
- 00000086						next:
- 00000086  A1 00000000 R				mov EAX, num
- 0000008B  39 05 00000004 R				cmp temp, EAX		;if temp > num then jump to fin
- 00000091  73 07					jae fin
- 00000093  B9 00000005					mov ECX, 5			;make loop infinity
- 00000098  E2 A4				loop anotherTemp
- 0000009A					fin:
- 0000009A  C3					ret
- 0000009B			PrimeFac endp
+ 0000007C						next:
+ 0000007C  A1 00000000 R				mov EAX, num
+ 00000081  39 05 00000004 R				cmp temp, EAX		;if temp > num then jump to fin
+ 00000087  73 02					jae fin
+ 00000089  EB AE				jmp anotherTemp
+ 0000008B					fin:
+ 0000008B  C3					ret
+ 0000008C			PrimeFac endp
 				
- 0000009B			printmul PROC
- 0000009B  BA 0000000D R		mov edx, OFFSET mulString		;print multiple symbol
- 000000A0  E8 00000000 E		call writeString
- 000000A5  C3				ret
- 000000A6			printmul endp
+ 0000008C			printmul PROC
+ 0000008C  BA 0000000D R		mov edx, OFFSET mulString		;print multiple symbol
+ 00000091  E8 00000000 E		call writeString
+ 00000096  C3				ret
+ 00000097			printmul endp
 				
- 000000A6			print PROC
+ 00000097			print PROC
 				
- 000000A6  80 3D 0000000C R		cmp flag ,0					;check whether printmul need to print 
+ 00000097  80 3D 0000000C R		cmp flag ,0					;check whether printmul need to print 
 	   00
- 000000AD  75 05			jne nomul
- 000000AF  E8 FFFFFFE7				call printmul
-					
- 000000B4					nomul:
- 000000B4  A1 00000004 R				mov EAX,temp
- 000000B9  E8 00000000 E				call writeDec
- 000000BE  83 3D 00000008 R				cmp count, 1			;if the power count is 1 then we do not need to print the power
+ 0000009E  75 05			jne nomul
+ 000000A0  E8 FFFFFFE7				call printmul	
+ 000000A5					nomul:
+ 000000A5  A1 00000004 R				mov EAX,temp
+ 000000AA  E8 00000000 E				call writeDec
+ 000000AF  83 3D 00000008 R				cmp count, 1			;if the power count is 1 then we do not need to print the power
 	   01
- 000000C5  74 14					je nopow
- 000000C7  BA 00000011 R				mov edx, OFFSET powString
- 000000CC  E8 00000000 E				call writeString
- 000000D1  A1 00000008 R				mov EAX, count
- 000000D6  E8 00000000 E				call writeDec
- 000000DB					nopow:
- 000000DB  C3				ret
- 000000DC			print endp
+ 000000B6  74 14					je nopow
+ 000000B8  BA 00000011 R				mov edx, OFFSET powString
+ 000000BD  E8 00000000 E				call writeString
+ 000000C2  A1 00000008 R				mov EAX, count
+ 000000C7  E8 00000000 E				call writeDec
+ 000000CC					nopow:
+ 000000CC  C3				ret
+ 000000CD			print endp
 				
 				END main
-Microsoft (R) Macro Assembler Version 14.27.29111.0	    11/03/20 12:23:34
+Microsoft (R) Macro Assembler Version 14.28.29334.0	    11/24/20 22:04:13
 Source.asm						     Symbols 2 - 1
 
 
@@ -212,7 +208,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00000013 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000000DC Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000000CD Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -267,12 +263,12 @@ OpenInputFile  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-PrimeFac . . . . . . . . . . . .	P Near	 00000034 _TEXT	Length= 00000067 Public STDCALL
-  anotherTemp  . . . . . . . . .	L Near	 0000003E _TEXT	
-  TestLB . . . . . . . . . . . .	L Near	 0000004E _TEXT	
-  nofac  . . . . . . . . . . . .	L Near	 00000071 _TEXT	
-  next . . . . . . . . . . . . .	L Near	 00000086 _TEXT	
-  fin  . . . . . . . . . . . . .	L Near	 0000009A _TEXT	
+PrimeFac . . . . . . . . . . . .	P Near	 0000002F _TEXT	Length= 0000005D Public STDCALL
+  anotherTemp  . . . . . . . . .	L Near	 00000039 _TEXT	
+  TestLB . . . . . . . . . . . .	L Near	 00000049 _TEXT	
+  nofac  . . . . . . . . . . . .	L Near	 00000067 _TEXT	
+  next . . . . . . . . . . . . .	L Near	 0000007C _TEXT	
+  fin  . . . . . . . . . . . . .	L Near	 0000008B _TEXT	
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -325,15 +321,15 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000034 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000002F Public STDCALL
   master . . . . . . . . . . . .	L Near	 00000000 _TEXT	
   one  . . . . . . . . . . . . .	L Near	 00000021 _TEXT	
-  finish . . . . . . . . . . . .	L Near	 0000002D _TEXT	
+  finish . . . . . . . . . . . .	L Near	 00000028 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-printmul . . . . . . . . . . . .	P Near	 0000009B _TEXT	Length= 0000000B Public STDCALL
-print  . . . . . . . . . . . . .	P Near	 000000A6 _TEXT	Length= 00000036 Public STDCALL
-  nomul  . . . . . . . . . . . .	L Near	 000000B4 _TEXT	
-  nopow  . . . . . . . . . . . .	L Near	 000000DB _TEXT	
+printmul . . . . . . . . . . . .	P Near	 0000008C _TEXT	Length= 0000000B Public STDCALL
+print  . . . . . . . . . . . . .	P Near	 00000097 _TEXT	Length= 00000036 Public STDCALL
+  nomul  . . . . . . . . . . . .	L Near	 000000A5 _TEXT	
+  nopow  . . . . . . . . . . . .	L Near	 000000CC _TEXT	
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
