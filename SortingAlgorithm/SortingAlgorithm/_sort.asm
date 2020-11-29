@@ -16,17 +16,17 @@ sort PROC,
 	mov ecx,arraySize
 	dec ecx
 	mov esi, ptrArray
-	add esi,4
+	add esi,4  ;i
 	L1:
 		mov eax, [esi]
 		mov key, eax
 		push esi
-		sub esi,4
+		sub esi,4  ;j
 		mov eax,i
 		mov j, eax
 		dec j
 		Testt:
-			cmp j,0
+			cmp j,0 
 			jl  exitt
 			mov eax,key
 			cmp [esi],eax

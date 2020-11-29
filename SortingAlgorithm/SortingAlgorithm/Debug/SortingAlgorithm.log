@@ -1,3 +1,2 @@
-﻿  Assembling Source.asm...
-prototype.inc(7): warning A4011: multiple .MODEL directives found : .MODEL ignored
-  SortingAlgorithm.vcxproj -> C:\Users\CS2019\Desktop\SortingAlgorithm\Debug\SortingAlgorithm.exe
+﻿legacy_stdio_wide_specifiers.lib(legacy_stdio_wide_specifiers.obj) : warning LNK4210: .CRT 區段存在，可能有未處理的靜態初始設定式或終止函式
+  SortingAlgorithm.vcxproj -> D:\Coding\assembly language\SortingAlgorithm\Debug\SortingAlgorithm.exe
