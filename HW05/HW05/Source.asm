@@ -6,13 +6,13 @@ INCLUDE Irvine32.inc
 ExitProcess proto, dwExitCode:dword
 
 gcd PROTO, mm: DWORD, nn: DWORD
-lcm PROTO, newTemp : DWORD, newGcdtotal : DWORD
+lcm PROTO, newTemp : DWORD, MM : DWORD, NN : DWORD
 
 .data
 M DWORD ?
 N DWORD ?
 temp DWORD ?				;temp is M*N
-gcdTotal DWORD 1			;store gcd
+gcdTotal DWORD ?			;store gcd
 lcmTotal DWORD ?			;store lcm
 space BYTE " ", 0
 .code
@@ -33,9 +33,7 @@ main PROC
 		mov M,EBX			;change M and N
 		mov N,EAX
 	goGCD:
-		INVOKE gcd,M,N		
-		mov gcdTotal, EAX
-		INVOKE lcm,temp,gcdTotal
+		INVOKE lcm,temp,M,N
 		mov lcmTotal, EAX
 		mov EAX, gcdTotal		;print gcd and lcm
 		call writeDec
@@ -53,20 +51,22 @@ gcd PROC, mm:DWORD, nn:DWORD
 	LOCAL R:DWORD
 	mov EAX, mm
 	mov EBX, nn
-	cmp EBX, 0
-	je fin
+	cmp EBX, 0		
+	je fin				;if nn==0 then jump to fin
 	cdq
 	div EBX
 	mov EAX,nn
-	mov R,EDX
-	INVOKE gcd,nn,R						;recursion
+	mov R,EDX			;save the mm%nn
+	INVOKE gcd,nn,R				;recursion
 	fin:
 	ret
 gcd endp
 
-lcm PROC, newTemp:DWORD, newGcdtotal:DWORD
+lcm PROC, newTemp:DWORD, MM : DWORD, NN : DWORD
+	INVOKE gcd, MM, NN			;call gcd
+	mov gcdTotal, EAX			;save the return value of gcd
 	mov EAX, newTemp
-	mov EBX, newGcdtotal
+	mov EBX, gcdtotal
 	cdq
 	div EBX					;compute lcm
 	ret

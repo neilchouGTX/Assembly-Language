@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.28.29334.0	    11/26/20 23:36:14
+Microsoft (R) Macro Assembler Version 14.28.29334.0	    11/30/20 19:59:41
 Source.asm						     Page 1 - 1
 
 
@@ -28,13 +28,13 @@ Source.asm(4) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 				ExitProcess proto, dwExitCode:dword
 
 				gcd PROTO, mm: DWORD, nn: DWORD
-				lcm PROTO, newTemp : DWORD, newGcdtotal : DWORD
+				lcm PROTO, newTemp : DWORD, MM : DWORD, NN : DWORD
 
  00000000			.data
  00000000 00000000		M DWORD ?
  00000004 00000000		N DWORD ?
  00000008 00000000		temp DWORD ?				;temp is M*N
- 0000000C 00000001		gcdTotal DWORD 1			;store gcd
+ 0000000C 00000000		gcdTotal DWORD ?			;store gcd
  00000010 00000000		lcmTotal DWORD ?			;store lcm
  00000014 20 00			space BYTE " ", 0
  00000000			.code
@@ -44,7 +44,7 @@ Source.asm(4) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 	   00000001
  0000000A  E8 00000000 E			call readDec
  0000000F  83 F8 00				cmp eax,0			;if M < 0 jump to finish
- 00000012  76 7F				jbe finish
+ 00000012  76 6C				jbe finish
  00000014  A3 00000000 R			mov M, EAX
  00000019  E8 00000000 E			call readDec
  0000001E  A3 00000004 R			mov N, EAX
@@ -56,46 +56,46 @@ Source.asm(4) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  00000034  89 1D 00000000 R			mov M,EBX			;change M and N
  0000003A  A3 00000004 R			mov N,EAX
  0000003F				goGCD:
-						INVOKE gcd,M,N		
- 00000050  A3 0000000C R			mov gcdTotal, EAX
-						INVOKE lcm,temp,gcdTotal
- 00000066  A3 00000010 R			mov lcmTotal, EAX
- 0000006B  A1 0000000C R			mov EAX, gcdTotal		;print gcd and lcm
- 00000070  E8 00000000 E			call writeDec
- 00000075  BA 00000014 R			mov EDX, OFFSET space
- 0000007A  E8 00000000 E			call writeString
- 0000007F  A1 00000010 R			mov EAX, lcmTotal
- 00000084  E8 00000000 E			call writeDec
- 00000089  E8 00000000 E			call crlf
- 0000008E  E9 FFFFFF6D				jmp start				;infinte loop
- 00000093				finish:
+						INVOKE lcm,temp,M,N
+ 00000056  A3 00000010 R			mov lcmTotal, EAX
+ 0000005B  A1 0000000C R			mov EAX, gcdTotal		;print gcd and lcm
+ 00000060  E8 00000000 E			call writeDec
+ 00000065  BA 00000014 R			mov EDX, OFFSET space
+ 0000006A  E8 00000000 E			call writeString
+ 0000006F  A1 00000010 R			mov EAX, lcmTotal
+ 00000074  E8 00000000 E			call writeDec
+ 00000079  E8 00000000 E			call crlf
+ 0000007E  EB 80				jmp start				;infinte loop
+ 00000080				finish:
 				INVOKE ExitProcess, 0
- 0000009A			main endp
+ 00000087			main endp
 
- 0000009A			gcd PROC, mm:DWORD, nn:DWORD
+ 00000087			gcd PROC, mm:DWORD, nn:DWORD
 					LOCAL R:DWORD
- 000000A0  8B 45 08			mov EAX, mm
- 000000A3  8B 5D 0C			mov EBX, nn
- 000000A6  83 FB 00			cmp EBX, 0
- 000000A9  74 14			je fin
- 000000AB  99				cdq
- 000000AC  F7 F3			div EBX
- 000000AE  8B 45 0C			mov EAX,nn
- 000000B1  89 55 FC			mov R,EDX
-					INVOKE gcd,nn,R						;recursion
- 000000BF				fin:
+ 0000008D  8B 45 08			mov EAX, mm
+ 00000090  8B 5D 0C			mov EBX, nn
+ 00000093  83 FB 00			cmp EBX, 0		
+ 00000096  74 14			je fin				;if nn==0 then jump to fin
+ 00000098  99				cdq
+ 00000099  F7 F3			div EBX
+ 0000009B  8B 45 0C			mov EAX,nn
+ 0000009E  89 55 FC			mov R,EDX			;save the mm%nn
+					INVOKE gcd,nn,R				;recursion
+ 000000AC				fin:
 					ret
- 000000C3			gcd endp
+ 000000B0			gcd endp
 
- 000000C3			lcm PROC, newTemp:DWORD, newGcdtotal:DWORD
- 000000C6  8B 45 08			mov EAX, newTemp
- 000000C9  8B 5D 0C			mov EBX, newGcdtotal
+ 000000B0			lcm PROC, newTemp:DWORD, MM : DWORD, NN : DWORD
+					INVOKE gcd, MM, NN			;call gcd
+ 000000BE  A3 0000000C R		mov gcdTotal, EAX			;save the return value of gcd
+ 000000C3  8B 45 08			mov EAX, newTemp
+ 000000C6  8B 1D 0000000C R		mov EBX, gcdtotal
  000000CC  99				cdq
  000000CD  F7 F3			div EBX					;compute lcm
 					ret
  000000D3			lcm endp
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29334.0	    11/26/20 23:36:14
+Microsoft (R) Macro Assembler Version 14.28.29334.0	    11/30/20 19:59:41
 Source.asm						     Symbols 2 - 1
 
 
@@ -297,18 +297,19 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-gcd  . . . . . . . . . . . . . .	P Near	 0000009A _TEXT	Length= 00000029 Public STDCALL
+gcd  . . . . . . . . . . . . . .	P Near	 00000087 _TEXT	Length= 00000029 Public STDCALL
   mm . . . . . . . . . . . . . .	DWord	 bp + 00000008
   nn . . . . . . . . . . . . . .	DWord	 bp + 0000000C
   R  . . . . . . . . . . . . . .	DWord	 bp - 00000004
-  fin  . . . . . . . . . . . . .	L Near	 000000BF _TEXT	
-lcm  . . . . . . . . . . . . . .	P Near	 000000C3 _TEXT	Length= 00000010 Public STDCALL
+  fin  . . . . . . . . . . . . .	L Near	 000000AC _TEXT	
+lcm  . . . . . . . . . . . . . .	P Near	 000000B0 _TEXT	Length= 00000023 Public STDCALL
   newTemp  . . . . . . . . . . .	DWord	 bp + 00000008
-  newGcdtotal  . . . . . . . . .	DWord	 bp + 0000000C
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000009A Public STDCALL
+  MM . . . . . . . . . . . . . .	DWord	 bp + 0000000C
+  NN . . . . . . . . . . . . . .	DWord	 bp + 00000010
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000087 Public STDCALL
   start  . . . . . . . . . . . .	L Near	 00000000 _TEXT	
   goGCD  . . . . . . . . . . . .	L Near	 0000003F _TEXT	
-  finish . . . . . . . . . . . .	L Near	 00000093 _TEXT	
+  finish . . . . . . . . . . . .	L Near	 00000080 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
