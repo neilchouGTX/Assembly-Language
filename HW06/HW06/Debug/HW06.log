@@ -1,0 +1,4 @@
+﻿  Assembling Source.asm...
+Source.asm(7): warning A4011: multiple .MODEL directives found : .MODEL ignored
+legacy_stdio_wide_specifiers.lib(legacy_stdio_wide_specifiers.obj) : warning LNK4210: .CRT 區段存在，可能有未處理的靜態初始設定式或終止函式
+  HW06.vcxproj -> C:\Users\neil1\Desktop\codeTEMP\test6\HW06\Debug\HW06.exe
