@@ -25,7 +25,7 @@ temp SDWORD ?
 format BYTE "%d", 0
 formatdouble BYTE "%.3f",0dh, 0ah, 0
 divtwo real8 2.0
-point1 Point2D <>
+point1 Point2D <>									;define 3 point2D structure and a triangleCompute structure
 point2 Point2D <>
 point3 Point2D <>
 triangleCompute Triangle <>
@@ -43,7 +43,7 @@ keepinput:
 	INVOKE ExitProcess, 0
 main endp
 
-input PROC
+input PROC													;input six points
 	INVOKE scanf, ADDR format, ADDR temp
 	mov EAX, temp
 	mov point1.X, EAX
@@ -65,7 +65,7 @@ input PROC
 input endp
 
 point2DP PROC
-	LOCAL var1: SDWORD, var2: SDWORD, total: DWORD
+	LOCAL var1: SDWORD, var2: SDWORD, total: DWORD					;compute the distance
 	mov EAX, point1.X
 	sub EAX, point2.X
 	imul EAX
@@ -112,7 +112,7 @@ point2DP PROC
 point2DP endp
 
 triangleP PROC
-	LOCAL s:real8, ssa:real8, ssb:real8, ssc:real8
+	LOCAL s:real8, ssa:real8, ssb:real8, ssc:real8					; Hero's formula
 	fld triangleCompute.sideA
 	fld triangleCompute.sideB
 	fld triangleCompute.sideC
