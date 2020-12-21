@@ -35,7 +35,6 @@ triangleCompute Triangle <>
 main PROC
 keepinput:
 	call input
-	mov point3.Y, EAX
 	call point2DP
 	call triangleP
 	INVOKE printf, ADDR formatdouble, triangleCompute.area
@@ -61,6 +60,7 @@ input PROC													;input six points
 	mov point3.X, EAX
 	INVOKE scanf, ADDR format, ADDR temp
 	mov EAX, temp
+	mov point3.Y, EAX
 	ret
 input endp
 
