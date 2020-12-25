@@ -38,12 +38,14 @@ keepinput:
 	call point2DP
 	call triangleP
 	INVOKE printf, ADDR formatdouble, triangleCompute.area
-
+	jmp keepinput
 	INVOKE ExitProcess, 0
 main endp
 
 input PROC													;input six points
 	INVOKE scanf, ADDR format, ADDR temp
+	cmp EAX,-1
+	je finalFIN
 	mov EAX, temp
 	mov point1.X, EAX
 	INVOKE scanf, ADDR format, ADDR temp
@@ -62,6 +64,8 @@ input PROC													;input six points
 	mov EAX, temp
 	mov point3.Y, EAX
 	ret
+	finalFIN:
+	INVOKE ExitProcess, 0
 input endp
 
 point2DP PROC
