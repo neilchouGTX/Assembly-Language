@@ -1,8 +1,8 @@
-Microsoft (R) Macro Assembler Version 14.28.29334.0	    12/30/20 00:02:42
+Microsoft (R) Macro Assembler Version 14.27.29111.0	    12/22/20 11:22:15
 Source.asm						     Page 1 - 1
 
 
-				include irvine32.inc
+				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
 			      C 
 			      C ;OPTION CASEMAP:NONE		; optional: make identifiers case-sensitive
@@ -20,93 +20,324 @@ Source.asm						     Page 1 - 1
 			      C .NOLIST
 			      C .LIST
 			      C 
-				includelib legacy_stdio_definitions.lib
+				INCLUDE Macros.inc
+			      C .NOLIST
+			      C .LIST
+			      C 
+
 				includelib ucrt.lib
+				includelib legacy_stdio_definitions.lib
 
-				.386
+				.586
+				.model flat, stdcall
+Source.asm(8) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 				.stack 4096
-				ExitProcess proto, dwExitCode:Dword
+				ExitProcess proto, dwExitCode:dword
 
-				minn proto,
-				Minroom : PTR REAL8,
-				MinCnt : DWORD
+				minimumArray MACRO arr:REQ				;find the minimum number of array
+					LOCAL findMin
+					mov esi, OFFSET arr
+					mov ECX,NUM
+					minimum [esi],[esi+4]
+					mov min, EAX
+					findMin:
+						minimum [esi], min
+						mov min, EAX
+						add esi,4
+						loop findMin
+					mov EAX,min
+					mov finalMin, EAX
+					postiveOrNeg EAX
+				ENDM
+
+				maximumArray MACRO arr:REQ				;find the maximum number of array
+					LOCAL findMax
+					mov esi, OFFSET arr
+					mov ECX, NUM
+					maximum [esi],[esi+4]
+					mov max, EAX
+					findMax:
+						maximum [esi], max
+						mov max,EAX
+						add esi,4
+						loop findMax
+					mov EAX,max
+					mov finalMax, EAX
+					postiveOrNeg EAX
+				ENDM
+
+				minimum MACRO num1:REQ,num2:REQ			;find the smaller one of two parameters
+					LOCAL first,second
+					mov EAX, num1
+					cmp EAX, num2
+					jl first
+					second:
+						mov EAX,num2
+					first:
+				ENDM
+
+				maximum MACRO num1:REQ,num2:REQ			;find the bigger one of two parameters
+					LOCAL first,second
+					mov EAX, num1
+					cmp EAX, num2
+					jg first
+					second:
+						mov EAX,num2
+					first:
+				ENDM
+
+				addSum MACRO num1:REQ,num2:REQ			;find the sum of all signed integers
+					mov EAX, num1
+					add EAX, num2
+				ENDM
+
+				productMaxMin MACRO num1:REQ, num2:REQ	;find the product of max and min
+					mov EAX, num1
+					mov EBX, num2
+					imul EBX
+				ENDM
+
+				divideMaxMin MACRO num1:REQ, num2:REQ	;find the quotient and remainder
+					mov EAX,num1
+					cdq
+					mov EBX,num2
+					idiv EBX
+				ENDM
+
+				postiveOrNeg MACRO num1:REQ				;remove the '+' of postive number
+					LOCAL negg,post,end
+					cmp num1, 0
+					jg post
+					negg:
+						call writeInt
+						jmp end
+					post:
+						call writeDec
+					end:
+				ENDM
+
 
  00000000			.data
- 00000000 00000000		count DWORD ?
- 00000004  0000012C [		room  Real8 300 DUP(? )
-	    0000000000000000
+ 00000000 00000000			NUM DWORD ?
+ 00000004  0000015E [			array DWORD 350 DUP(?)
+	    00000000
 	   ]
- 00000964			outtmax Real8 ?
-	   0000000000000000
- 0000096C			min REAL8 ?
-	   0000000000000000
- 00000974			sum REAL8 ?
-	   0000000000000000
- 0000097C			product REAL8 ?
-	   0000000000000000
- 00000984 25 2E 31 66 00	format BYTE "%.1f", 0
-
+ 0000057C 00000000			finalMax SDWORD ?
+ 00000580 00000000			finalMin SDWORD ?
  00000000			.code
- 00000000			main PROC; 2020 / 12 / 29 408261242 資工二甲 陳柏昱
- 00000000  E8 00000000 E	call ReadDec
- 00000005  8B C8		mov ECX, EAX
- 00000007  89 0D 00000000 R	mov count, ECX
- 0000000D  BE 00000000		mov ESI, 0
- 00000012			input:
- 00000012  E8 00000000 E	call ReadFloat
- 00000017  DD 9E 00000004 R	fstp room[esi]
- 0000001D  83 C6 08		add esi, type real8
- 00000020  E2 F0		loop input
-				invoke minn, ADDR room, count
-				exit
- 00000039			main endp
 
- 00000039			minn PROC,
-				Minroom:PTR REAL8,
-				MinCnt : DWORD
+ 00000000			main PROC
+ 00000000  E8 00000000 E		call readDec						;input NUM
+ 00000005  A3 00000000 R		mov NUM, EAX
+ 0000000A  8B 0D 00000000 R		mov ECX, NUM
+ 00000010  BE 00000004 R		mov esi, OFFSET array
+ 00000015				input:								;input numbers into array
+ 00000015  E8 00000000 E			call readInt
+ 0000001A  89 06				mov [esi], EAX
+ 0000001C  83 C6 04				add esi, 4
+ 0000001F  E2 F4				loop input
+ 00000021  E8 00000016			call Line1
+ 00000026  E8 000000B0			call Line2
+ 0000002B  E8 000000EB			call Line3
+ 00000030  E8 0000010A			call Line4
+					INVOKE ExitProcess, 0
+ 0000003C			main ENDP
 
- 0000003C  8B 75 08		mov esi, Minroom
- 0000003F  DD 06		fld real8 PTR[esi]
- 00000041  83 C6 08		add esi, type real8
- 00000044  DD 06		fld real8 PTR[esi]
- 00000046  DB F1		fcomi st(0), st(1)
- 00000048  73 0E		jnb outmax
- 0000004A  DD 1D 0000096C R	fstp min
- 00000050  DD 1D 00000964 R	fstp outtmax
- 00000056  EB 0C		jmp ready
- 00000058			outmax :
- 00000058  DD 1D 00000964 R	fstp outtmax
- 0000005E  DD 1D 0000096C R	fstp min
- 00000064			ready :
- 00000064  8B 4D 0C		mov ECX, MinCnt
- 00000067  83 E9 02		sub ECX, 2
- 0000006A			Minout :
- 0000006A  83 F9 00		    cmp ECX, 0
- 0000006D  74 2C		    je outputMin
- 0000006F  DD 05 0000096C R	    fld min
- 00000075  83 C6 08		    add esi, type real8
- 00000078  DD 06		    fld real8 PTR[esi]
- 0000007A  DB F1		    fcomi st(0), st(1)
- 0000007C  73 0E		    jnb outmaxx
- 0000007E  DD 1D 0000096C R	    fstp min
- 00000084  DD 1D 00000964 R	    fstp outtmax
- 0000008A  E2 DE		    loop Minout
- 0000008C			    outmaxx :
- 0000008C  DD 1D 00000964 R	fstp outtmax
- 00000092  DD 1D 0000096C R	fstp min
- 00000098  49			dec ECX
- 00000099  EB CF		jmp Minout
- 0000009B			outputMin :
-				invoke printf, ADDR format, min
-				ret
- 000000B8			minn endp
+ 0000003C			Line1 PROC
+					LOCAL max:SDWORD, min:SDWORD
+					minimumArray array
+ 00000042  BE 00000004 R     1		mov esi, OFFSET array
+ 00000047  8B 0D 00000000 R  1		mov ECX,NUM
+ 0000004D  8B 06	     2		mov EAX, [esi]
+ 0000004F  3B 46 04	     2		cmp EAX, [esi+4]
+ 00000052  7C 03	     2		jl ??0001
+ 00000054		     2		??0002:
+ 00000054  8B 46 04	     2			mov EAX,[esi+4]
+ 00000057		     2		??0001:
+ 00000057  89 45 F8	     1		mov min, EAX
+ 0000005A		     1		??0000:
+ 0000005A  8B 06	     2		mov EAX, [esi]
+ 0000005C  3B 45 F8	     2		cmp EAX, min
+ 0000005F  7C 03	     2		jl ??0003
+ 00000061		     2		??0004:
+ 00000061  8B 45 F8	     2			mov EAX,min
+ 00000064		     2		??0003:
+ 00000064  89 45 F8	     1			mov min, EAX
+ 00000067  83 C6 04	     1			add esi,4
+ 0000006A  E2 EE	     1			loop ??0000
+ 0000006C  8B 45 F8	     1		mov EAX,min
+ 0000006F  A3 00000580 R     1		mov finalMin, EAX
+ 00000074  83 F8 00	     2		cmp EAX, 0
+ 00000077  7F 07	     2		jg ??0006
+ 00000079		     2		??0005:
+ 00000079  E8 00000000 E     2			call writeInt
+ 0000007E  EB 05	     2			jmp ??0007
+ 00000080		     2		??0006:
+ 00000080  E8 00000000 E     2			call writeDec
+ 00000085		     2		??0007:
+					mWriteSpace 1
+ 00000584		     1	.data
+ 00000584  00000001 [	     1	??0008 BYTE 1 DUP(' '),0
+	    20
+	   ] 00
+ 00000085		     1	.code
+ 00000085  52		     1		push	edx
+ 00000086  BA 00000584 R     1		mov	edx,OFFSET ??0008
+ 0000008B  E8 00000000 E     1		call	WriteString
+ 00000090  5A		     1		pop	edx
+					maximumArray array
+ 00000091  BE 00000004 R     1		mov esi, OFFSET array
+ 00000096  8B 0D 00000000 R  1		mov ECX, NUM
+ 0000009C  8B 06	     2		mov EAX, [esi]
+ 0000009E  3B 46 04	     2		cmp EAX, [esi+4]
+ 000000A1  7F 03	     2		jg ??000A
+ 000000A3		     2		??000B:
+ 000000A3  8B 46 04	     2			mov EAX,[esi+4]
+ 000000A6		     2		??000A:
+ 000000A6  89 45 FC	     1		mov max, EAX
+ 000000A9		     1		??0009:
+ 000000A9  8B 06	     2		mov EAX, [esi]
+ 000000AB  3B 45 FC	     2		cmp EAX, max
+ 000000AE  7F 03	     2		jg ??000C
+ 000000B0		     2		??000D:
+ 000000B0  8B 45 FC	     2			mov EAX,max
+ 000000B3		     2		??000C:
+ 000000B3  89 45 FC	     1			mov max,EAX
+ 000000B6  83 C6 04	     1			add esi,4
+ 000000B9  E2 EE	     1			loop ??0009
+ 000000BB  8B 45 FC	     1		mov EAX,max
+ 000000BE  A3 0000057C R     1		mov finalMax, EAX
+ 000000C3  83 F8 00	     2		cmp EAX, 0
+ 000000C6  7F 07	     2		jg ??000F
+ 000000C8		     2		??000E:
+ 000000C8  E8 00000000 E     2			call writeInt
+ 000000CD  EB 05	     2			jmp ??0010
+ 000000CF		     2		??000F:
+ 000000CF  E8 00000000 E     2			call writeDec
+ 000000D4		     2		??0010:
+ 000000D4  E8 00000000 E		call crlf
+					ret
+ 000000DB			Line1 ENDP
 
+ 000000DB			Line2 PROC
+					LOCAL sum:SDWORD
+ 000000E1  BE 00000004 R		mov esi, OFFSET array
+ 000000E6  8B 06			mov EAX, [esi]
+ 000000E8  89 45 FC			mov sum, EAX
+ 000000EB  8B 0D 00000000 R		mov ECX,NUM
+ 000000F1  49				dec ECX
+ 000000F2				findSum:
+						addSum sum, [esi+4]
+ 000000F2  8B 45 FC	     1		mov EAX, sum
+ 000000F5  03 46 04	     1		add EAX, [esi+4]
+ 000000F8  89 45 FC				mov sum, EAX
+ 000000FB  83 C6 04				add esi,4
+ 000000FE  E2 F2				loop findSum
+ 00000100  8B 45 FC			mov EAX, sum
+					postiveOrNeg EAX
+ 00000103  83 F8 00	     1		cmp EAX, 0
+ 00000106  7F 07	     1		jg ??0012
+ 00000108		     1		??0011:
+ 00000108  E8 00000000 E     1			call writeInt
+ 0000010D  EB 05	     1			jmp ??0013
+ 0000010F		     1		??0012:
+ 0000010F  E8 00000000 E     1			call writeDec
+ 00000114		     1		??0013:
+ 00000114  E8 00000000 E		call crlf
+					ret
+ 0000011B			Line2 ENDP
 
-				end main
-Microsoft (R) Macro Assembler Version 14.28.29334.0	    12/30/20 00:02:42
+ 0000011B			Line3 PROC
+					productMaxMin finalMax, finalMin
+ 0000011B  A1 0000057C R     1		mov EAX, finalMax
+ 00000120  8B 1D 00000580 R  1		mov EBX, finalMin
+ 00000126  F7 EB	     1		imul EBX
+					postiveOrNeg EAX
+ 00000128  83 F8 00	     1		cmp EAX, 0
+ 0000012B  7F 07	     1		jg ??0015
+ 0000012D		     1		??0014:
+ 0000012D  E8 00000000 E     1			call writeInt
+ 00000132  EB 05	     1			jmp ??0016
+ 00000134		     1		??0015:
+ 00000134  E8 00000000 E     1			call writeDec
+ 00000139		     1		??0016:
+ 00000139  E8 00000000 E		call crlf
+ 0000013E  C3				ret
+ 0000013F			Line3 ENDP
+
+ 0000013F			Line4 PROC
+					LOCAL quotient:SDWORD, remainder:SDWORD
+					divideMaxMin finalMax, finalMin
+ 00000145  A1 0000057C R     1		mov EAX,finalMax
+ 0000014A  99		     1		cdq
+ 0000014B  8B 1D 00000580 R  1		mov EBX,finalMin
+ 00000151  F7 FB	     1		idiv EBX
+ 00000153  89 45 FC			mov quotient, EAX
+ 00000156  89 55 F8			mov remainder, EDX
+					postiveOrNeg EAX
+ 00000159  83 F8 00	     1		cmp EAX, 0
+ 0000015C  7F 07	     1		jg ??0018
+ 0000015E		     1		??0017:
+ 0000015E  E8 00000000 E     1			call writeInt
+ 00000163  EB 05	     1			jmp ??0019
+ 00000165		     1		??0018:
+ 00000165  E8 00000000 E     1			call writeDec
+ 0000016A		     1		??0019:
+					mWriteSpace 1
+ 00000586		     1	.data
+ 00000586  00000001 [	     1	??001A BYTE 1 DUP(' '),0
+	    20
+	   ] 00
+ 0000016A		     1	.code
+ 0000016A  52		     1		push	edx
+ 0000016B  BA 00000586 R     1		mov	edx,OFFSET ??001A
+ 00000170  E8 00000000 E     1		call	WriteString
+ 00000175  5A		     1		pop	edx
+ 00000176  8B 45 F8			mov EAX,remainder
+					postiveOrNeg EAX
+ 00000179  83 F8 00	     1		cmp EAX, 0
+ 0000017C  7F 07	     1		jg ??001C
+ 0000017E		     1		??001B:
+ 0000017E  E8 00000000 E     1			call writeInt
+ 00000183  EB 05	     1			jmp ??001D
+ 00000185		     1		??001C:
+ 00000185  E8 00000000 E     1			call writeDec
+ 0000018A		     1		??001D:
+ 0000018A  E8 00000000 E		call crlf
+					ret
+ 00000191			Line4 ENDP
+
+				END main
+Microsoft (R) Macro Assembler Version 14.27.29111.0	    12/22/20 11:22:15
 Source.asm						     Symbols 2 - 1
 
 
+
+
+Macros:
+
+                N a m e                 Type
+
+IsDefined  . . . . . . . . . . .	Func
+Startup  . . . . . . . . . . . .	Proc
+addSum . . . . . . . . . . . . .	Proc
+divideMaxMin . . . . . . . . . .	Proc
+mDumpMem . . . . . . . . . . . .	Proc
+mDump  . . . . . . . . . . . . .	Proc
+mGotoxy  . . . . . . . . . . . .	Proc
+mReadString  . . . . . . . . . .	Proc
+mShowRegister  . . . . . . . . .	Proc
+mShow  . . . . . . . . . . . . .	Proc
+mWriteLn . . . . . . . . . . . .	Proc
+mWriteSpace  . . . . . . . . . .	Proc
+mWriteString . . . . . . . . . .	Proc
+mWrite . . . . . . . . . . . . .	Proc
+maximumArray . . . . . . . . . .	Proc
+maximum  . . . . . . . . . . . .	Proc
+minimumArray . . . . . . . . . .	Proc
+minimum  . . . . . . . . . . . .	Proc
+postiveOrNeg . . . . . . . . . .	Proc
+productMaxMin  . . . . . . . . .	Proc
 
 
 Structures and Unions:
@@ -197,8 +428,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000989 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000000B8 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000588 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000191 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -245,6 +476,44 @@ HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Line1  . . . . . . . . . . . . .	P Near	 0000003C _TEXT	Length= 0000009F Public STDCALL
+  max  . . . . . . . . . . . . .	DWord	 bp - 00000004
+  min  . . . . . . . . . . . . .	DWord	 bp - 00000008
+  ??0002 . . . . . . . . . . . .	L Near	 00000054 _TEXT	
+  ??0001 . . . . . . . . . . . .	L Near	 00000057 _TEXT	
+  ??0000 . . . . . . . . . . . .	L Near	 0000005A _TEXT	
+  ??0004 . . . . . . . . . . . .	L Near	 00000061 _TEXT	
+  ??0003 . . . . . . . . . . . .	L Near	 00000064 _TEXT	
+  ??0005 . . . . . . . . . . . .	L Near	 00000079 _TEXT	
+  ??0006 . . . . . . . . . . . .	L Near	 00000080 _TEXT	
+  ??0007 . . . . . . . . . . . .	L Near	 00000085 _TEXT	
+  ??000B . . . . . . . . . . . .	L Near	 000000A3 _TEXT	
+  ??000A . . . . . . . . . . . .	L Near	 000000A6 _TEXT	
+  ??0009 . . . . . . . . . . . .	L Near	 000000A9 _TEXT	
+  ??000D . . . . . . . . . . . .	L Near	 000000B0 _TEXT	
+  ??000C . . . . . . . . . . . .	L Near	 000000B3 _TEXT	
+  ??000E . . . . . . . . . . . .	L Near	 000000C8 _TEXT	
+  ??000F . . . . . . . . . . . .	L Near	 000000CF _TEXT	
+  ??0010 . . . . . . . . . . . .	L Near	 000000D4 _TEXT	
+Line2  . . . . . . . . . . . . .	P Near	 000000DB _TEXT	Length= 00000040 Public STDCALL
+  sum  . . . . . . . . . . . . .	DWord	 bp - 00000004
+  findSum  . . . . . . . . . . .	L Near	 000000F2 _TEXT	
+  ??0011 . . . . . . . . . . . .	L Near	 00000108 _TEXT	
+  ??0012 . . . . . . . . . . . .	L Near	 0000010F _TEXT	
+  ??0013 . . . . . . . . . . . .	L Near	 00000114 _TEXT	
+Line3  . . . . . . . . . . . . .	P Near	 0000011B _TEXT	Length= 00000024 Public STDCALL
+  ??0014 . . . . . . . . . . . .	L Near	 0000012D _TEXT	
+  ??0015 . . . . . . . . . . . .	L Near	 00000134 _TEXT	
+  ??0016 . . . . . . . . . . . .	L Near	 00000139 _TEXT	
+Line4  . . . . . . . . . . . . .	P Near	 0000013F _TEXT	Length= 00000052 Public STDCALL
+  quotient . . . . . . . . . . .	DWord	 bp - 00000004
+  remainder  . . . . . . . . . .	DWord	 bp - 00000008
+  ??0017 . . . . . . . . . . . .	L Near	 0000015E _TEXT	
+  ??0018 . . . . . . . . . . . .	L Near	 00000165 _TEXT	
+  ??0019 . . . . . . . . . . . .	L Near	 0000016A _TEXT	
+  ??001B . . . . . . . . . . . .	L Near	 0000017E _TEXT	
+  ??001C . . . . . . . . . . . .	L Near	 00000185 _TEXT	
+  ??001D . . . . . . . . . . . .	L Near	 0000018A _TEXT	
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MsgBoxAsk  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -305,16 +574,8 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000039 Public STDCALL
-  input  . . . . . . . . . . . .	L Near	 00000012 _TEXT	
-minn . . . . . . . . . . . . . .	P Near	 00000039 _TEXT	Length= 0000007F Public STDCALL
-  Minroom  . . . . . . . . . . .	DWord	 bp + 00000008
-  MinCnt . . . . . . . . . . . .	DWord	 bp + 0000000C
-  outmax . . . . . . . . . . . .	L Near	 00000058 _TEXT	
-  ready  . . . . . . . . . . . .	L Near	 00000064 _TEXT	
-  Minout . . . . . . . . . . . .	L Near	 0000006A _TEXT	
-  outmaxx  . . . . . . . . . . .	L Near	 0000008C _TEXT	
-  outputMin  . . . . . . . . . .	L Near	 0000009B _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000003C Public STDCALL
+  input  . . . . . . . . . . . .	L Near	 00000015 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -324,6 +585,8 @@ Symbols:
 
                 N a m e                 Type     Value    Attr
 
+??0008 . . . . . . . . . . . . .	Byte	 00000584 _DATA	
+??001A . . . . . . . . . . . . .	Byte	 00000586 _DATA	
 @CodeSize  . . . . . . . . . . .	Number	 00000000h   
 @DataSize  . . . . . . . . . . .	Number	 00000000h   
 @Interface . . . . . . . . . . .	Number	 00000003h   
@@ -435,6 +698,7 @@ MOUSE_EVENT  . . . . . . . . . .	Number	 00000002h
 MessageBox . . . . . . . . . . .	Text   	 MessageBoxA
 NULL . . . . . . . . . . . . . .	Number	 00000000h   
 NUMLOCK_ON . . . . . . . . . . .	Number	 00000020h   
+NUM  . . . . . . . . . . . . . .	DWord	 00000000 _DATA	
 OPEN_ALWAYS  . . . . . . . . . .	Number	 00000004h   
 OPEN_EXISTING  . . . . . . . . .	Number	 00000003h   
 PeekConsoleInput . . . . . . . .	Text   	 PeekConsoleInputA
@@ -533,13 +797,14 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
+array  . . . . . . . . . . . . .	DWord	 00000004 _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-count  . . . . . . . . . . . . .	DWord	 00000000 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-format . . . . . . . . . . . . .	Byte	 00000984 _DATA	
+finalMax . . . . . . . . . . . .	DWord	 0000057C _DATA	
+finalMin . . . . . . . . . . . .	DWord	 00000580 _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
@@ -549,15 +814,10 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-min  . . . . . . . . . . . . . .	QWord	 0000096C _DATA	
-outtmax  . . . . . . . . . . . .	QWord	 00000964 _DATA	
-product  . . . . . . . . . . . .	QWord	 0000097C _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-room . . . . . . . . . . . . . .	QWord	 00000004 _DATA	
-sum  . . . . . . . . . . . . . .	QWord	 00000974 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
 
-	   0 Warnings
+	   1 Warnings
 	   0 Errors

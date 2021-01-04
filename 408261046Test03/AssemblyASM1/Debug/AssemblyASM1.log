@@ -1,2 +1,3 @@
 ﻿  Assembling Source.asm...
-  AssemblyASM1.vcxproj -> C:\Users\neil1\Desktop\408261046Test03\Debug\AssemblyASM1.exe
+Source.asm(8): warning A4011: multiple .MODEL directives found : .MODEL ignored
+  AssemblyASM1.vcxproj -> C:\Users\CS2019\Desktop\AssemblyASM1\Debug\AssemblyASM1.exe
