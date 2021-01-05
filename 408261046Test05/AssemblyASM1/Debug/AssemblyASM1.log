@@ -1,0 +1,4 @@
+﻿  Assembling Source.asm...
+Source.asm(8): warning A4011: multiple .MODEL directives found : .MODEL ignored
+legacy_stdio_wide_specifiers.lib(legacy_stdio_wide_specifiers.obj) : warning LNK4210: .CRT 區段存在，可能有未處理的靜態初始設定式或終止函式
+  AssemblyASM1.vcxproj -> C:\Users\CS2019\Desktop\408261046Test05\Debug\AssemblyASM1.exe
